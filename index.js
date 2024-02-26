@@ -114,7 +114,7 @@ app.post("/removeproduct", async(req, res)=>{
 
 app.get("/allproducts", async (req,res)=>{
     let products = await Product.find({})
-    console.log("All products Fetched")
+    // console.log("All products Fetched")
     res.send(products);
 })
 
