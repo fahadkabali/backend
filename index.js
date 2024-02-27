@@ -6,13 +6,14 @@ const multer = require("multer")
 const path = require("path")
 const cors = require("cors")
 const { error } = require("console")
+require('dotenv').config()
 const port =4000;
 
 app.use(express.json())
 app.use(cors())
 
 // MongonDB connection 
-mongoose.connect("mongodb+srv://fahadk:12345@cluster0.jzqxmm8.mongodb.net/myOnlineStore")
+mongoose.connect(`${process.env.MONGODB_URI}`)
 // Api creation
 
 app.get("/",(req,res)=>{
