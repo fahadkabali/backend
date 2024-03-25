@@ -20,59 +20,59 @@ mongoose.connect(`${process.env.MONGODB_URI}`)
 app.get("/",(req,res)=>{
     res.send("Express App is runinng")
 })
-// const storage =multer.diskStorage({
-//     destination: './upload/images',
-//     filename:(req,file,cb)=>{
-//         return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
-//     }
-// })
-// const upload = multer({storage:storage})
-// //creating upload endpoint for images
-
-// app.use('/images', express.static('upload/images'))
-
-// app.post("/upload",upload.single('product'),(req, res)=>{
-//     res.json({
-//         success:1,
-//         image_url:`http://localhost:${port}/images/${req.file.filename}`
-//     })
-// })
-const upload = multer({
-    dest: 'upload/images', 
-    limits: { fileSize: 1000000 }, 
-    fileFilter: (req, file, cb) => {
-      const allowedExtensions = ['.jpg', '.jpeg', '.png']; 
-      const extname = path.extname(file.originalname);
-      if (!allowedExtensions.includes(extname)) {
-        cb(new Error('Only JPG, JPEG, and PNG files are allowed'));
-        return;
-      }
-      cb(null, true);
+const storage =multer.diskStorage({
+    destination: './upload/images',
+    filename:(req,file,cb)=>{
+        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
     }
-  });
-  
-  app.post('/upload', upload.single('product'), (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ success: 0, message: 'No file uploaded' });
-    }
+})
+const upload = multer({storage:storage})
+//creating upload endpoint for images
 
-    const filename = `${Date.now()}-${req.file.originalname}`;
-  
-    let imageUrl;
-    if (process.env.NODE_ENV === 'production') {
+app.use('/images', express.static('upload/images'))
 
-      imageUrl = `https://backend-a13v.onrender.com/upload/images/${filename}`; 
-    } else {
-      
-      imageUrl = `http://localhost:${port}/images/${filename}`;
-    }
-  
+app.post("/upload",upload.single('product'),(req, res)=>{
     res.json({
-      success: 1,
-      message: 'File uploaded successfully',
-      image_url: imageUrl
-    });
-  });
+        success:1,
+        image_url:`https://backend-a13v.onrender.com/images/${req.file.filename}`
+    })
+})
+// const upload = multer({
+//     dest: 'upload/images', 
+//     limits: { fileSize: 1000000 }, 
+//     fileFilter: (req, file, cb) => {
+//       const allowedExtensions = ['.jpg', '.jpeg', '.png']; 
+//       const extname = path.extname(file.originalname);
+//       if (!allowedExtensions.includes(extname)) {
+//         cb(new Error('Only JPG, JPEG, and PNG files are allowed'));
+//         return;
+//       }
+//       cb(null, true);
+//     }
+//   });
+  
+//   app.post('/upload', upload.single('product'), (req, res) => {
+//     if (!req.file) {
+//       return res.status(400).json({ success: 0, message: 'No file uploaded' });
+//     }
+
+//     const filename = `${Date.now()}-${req.file.originalname}`;
+  
+//     let imageUrl;
+//     if (process.env.NODE_ENV === 'production') {
+
+//       imageUrl = `https://backend-a13v.onrender.com/upload/images/${filename}`; 
+//     } else {
+      
+//       imageUrl = `http://localhost:${port}/images/${filename}`;
+//     }
+  
+//     res.json({
+//       success: 1,
+//       message: 'File uploaded successfully',
+//       image_url: imageUrl
+//     });
+//   });
 
 //schema for creating products.
 const Product = mongoose.model("Product",{
