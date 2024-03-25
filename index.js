@@ -8,7 +8,7 @@ const cors = require("cors")
 const bcrypt = require('bcrypt')
 const { error } = require("console")
 require('dotenv').config()
-const port =4000;
+const port =4001;
 
 app.use(express.json())
 app.use(cors())
@@ -20,23 +20,65 @@ mongoose.connect(`${process.env.MONGODB_URI}`)
 app.get("/",(req,res)=>{
     res.send("Express App is runinng")
 })
-const storage =multer.diskStorage({
-    destination: './upload/images',
-    filename:(req,file,cb)=>{
-        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+// const storage =multer.diskStorage({
+//     destination: './upload/images',
+//     filename:(req,file,cb)=>{
+//         return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+//     }
+// })
+// const upload = multer({storage:storage})
+// //creating upload endpoint for images
+
+// app.use('/images', express.static('upload/images'))
+
+// app.post("/upload",upload.single('product'),(req, res)=>{
+//     res.json({
+//         success:1,
+//         image_url:`http://localhost:${port}/images/${req.file.filename}`
+//     })
+// })
+const upload = multer({
+    dest: 'upload/images', // Change this to a suitable directory for storing uploads
+    limits: { fileSize: 1000000 }, // Optional: Limit file size to 1MB
+    fileFilter: (req, file, cb) => {
+      const allowedExtensions = ['.jpg', '.jpeg', '.png']; // Allow specific image types
+      const extname = path.extname(file.originalname);
+      if (!allowedExtensions.includes(extname)) {
+        cb(new Error('Only JPG, JPEG, and PNG files are allowed'));
+        return;
+      }
+      cb(null, true);
     }
-})
-const upload = multer({storage:storage})
-//creating upload endpoint for images
-
-app.use('/images', express.static('upload/images'))
-
-app.post("/upload",upload.single('product'),(req, res)=>{
+  });
+  
+  app.post('/upload', upload.single('product'), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ success: 0, message: 'No file uploaded' });
+    }
+  
+    // Generate a secure and unique filename (optional)
+    const filename = `${Date.now()}-${req.file.originalname}`;
+  
+    // Move the uploaded file to a more secure location (optional)
+    // const filePath = path.join(__dirname, 'uploads', filename);
+    // fs.renameSync(req.file.path, filePath); // Consider using fs.promises.rename for async operations
+  
+    // Construct the image URL based on deployment environment
+    let imageUrl;
+    if (process.env.NODE_ENV === 'production') {
+      // Production environment: Use a CDN or other appropriate image hosting
+      imageUrl = `https://backend-a13v.onrender.com/images/${filename}`; // Replace with your actual URL
+    } else {
+      // Development environment: Use localhost for testing
+      imageUrl = `http://localhost:${port}/images/${filename}`;
+    }
+  
     res.json({
-        success:1,
-        image_url:`http://localhost:${port}/images/${req.file.filename}`
-    })
-})
+      success: 1,
+      message: 'File uploaded successfully',
+      image_url: imageUrl
+    });
+  });
 
 //schema for creating products.
 const Product = mongoose.model("Product",{
