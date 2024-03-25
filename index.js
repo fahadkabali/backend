@@ -38,10 +38,10 @@ app.get("/",(req,res)=>{
 //     })
 // })
 const upload = multer({
-    dest: 'upload/images', // Change this to a suitable directory for storing uploads
-    limits: { fileSize: 1000000 }, // Optional: Limit file size to 1MB
+    dest: 'upload/images', 
+    limits: { fileSize: 1000000 }, 
     fileFilter: (req, file, cb) => {
-      const allowedExtensions = ['.jpg', '.jpeg', '.png']; // Allow specific image types
+      const allowedExtensions = ['.jpg', '.jpeg', '.png']; 
       const extname = path.extname(file.originalname);
       if (!allowedExtensions.includes(extname)) {
         cb(new Error('Only JPG, JPEG, and PNG files are allowed'));
@@ -55,21 +55,15 @@ const upload = multer({
     if (!req.file) {
       return res.status(400).json({ success: 0, message: 'No file uploaded' });
     }
-  
-    // Generate a secure and unique filename (optional)
+
     const filename = `${Date.now()}-${req.file.originalname}`;
   
-    // Move the uploaded file to a more secure location (optional)
-    // const filePath = path.join(__dirname, 'uploads', filename);
-    // fs.renameSync(req.file.path, filePath); // Consider using fs.promises.rename for async operations
-  
-    // Construct the image URL based on deployment environment
     let imageUrl;
     if (process.env.NODE_ENV === 'production') {
-      // Production environment: Use a CDN or other appropriate image hosting
-      imageUrl = `https://backend-a13v.onrender.com/images/${filename}`; // Replace with your actual URL
+
+      imageUrl = `https://backend-a13v.onrender.com/upload/images/${filename}`; 
     } else {
-      // Development environment: Use localhost for testing
+      
       imageUrl = `http://localhost:${port}/images/${filename}`;
     }
   
